@@ -1,6 +1,8 @@
-# Claude Code Plugins
+# Claude Code Plugins & MCP Servers
 
-Reference list of plugins used in this vault. Reinstall with the commands below after a fresh setup.
+Reference list of plugins and MCP servers used with Claude Code in this vault. Reinstall with the commands below after a fresh setup.
+
+> Gemini equivalents (extensions, commands) live under `.gemini/` — this file is Claude-only.
 
 ## Install commands
 
@@ -22,6 +24,13 @@ npx get-shit-done-cc --claude --global
 /plugin install claude-mem
 ```
 
+## MCP servers
+
+```bash
+# context7 — Upstash docs/code lookup MCP
+claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
+```
+
 ## What each plugin does
 
 | Plugin | Purpose |
@@ -33,8 +42,16 @@ npx get-shit-done-cc --claude --global
 | `context-mode` | Context-window protection. Provides `ctx_*` MCP tools that index large outputs (logs, fetches, batch commands) and let Claude search them instead of dumping into context. |
 | `claude-mem` | Persistent cross-session memory database. Auto-captures observations and lets future sessions search prior work via `mem-search`. |
 
+## What each MCP server does
+
+| Server | Purpose |
+| --- | --- |
+| `context7` | Upstash-hosted MCP that fetches up-to-date library docs and code examples on demand. Use when answering API/library questions where freshness matters. |
+
 ## Notes
 
 - `skill-creator`, `superpowers`, and `frontend-design` all live on the `claude-plugins-official` marketplace (preinstalled — no `marketplace add` needed).
 - `context-mode` and `claude-mem` need their marketplaces added first.
 - GSD is the odd one out — it's an `npx` installer, not a Claude plugin. Re-run the `npx` command to upgrade.
+- MCP install commands above default to user scope. Add `-s project` to write to a project's `.mcp.json` instead, or `-s local` for this-project-only.
+
