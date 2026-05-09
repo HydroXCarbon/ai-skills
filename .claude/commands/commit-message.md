@@ -1,6 +1,6 @@
 ---
 description: Draft a Conventional Commits message with emoji prefix for staged changes, then offer to commit.
-allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git commit:*), AskUserQuestion
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git commit:*), Bash(git push:*), AskUserQuestion
 argument-hint: "[optional type hint, e.g. fix or docs]"
 ---
 
@@ -69,11 +69,12 @@ Output the full message inside a fenced block so the user can copy it verbatim:
 
 ## Step 6 — Offer to commit
 
-Use `AskUserQuestion` with three options:
+Use `AskUserQuestion` with four options:
 
 1. **Commit staged changes with this message** (Recommended)
-2. **Skip — I'll commit manually**
-3. **Edit and retry** — redraft once with the user's feedback (max one retry per invocation)
+2. **Commit and push** — commit, then `git push` immediately after
+3. **Skip — I'll commit manually**
+4. **Edit and retry** — redraft once with the user's feedback (max one retry per invocation)
 
 ## Step 7 — Act on the choice
 
@@ -87,6 +88,7 @@ Use `AskUserQuestion` with three options:
   )"
   ```
   Then run `git status` and report success with the new commit's short hash (`git log -1 --pretty=%h%x20%s`).
+- **Commit and push chosen** → run the same `git commit` heredoc above, then run `git push`. Report the commit's short hash and the push result (remote URL and branch). If `git push` fails, report the error verbatim and stop — do not retry.
 - **Skip chosen** → do nothing. Confirm the message was not committed.
 - **Edit chosen** → ask the user what to change, redraft once, return to Step 5. Do not loop further.
 
@@ -95,4 +97,4 @@ Use `AskUserQuestion` with three options:
 - Never use `--amend`, `--no-verify`, `--no-gpg-sign`, or `-a` on `git commit`.
 - Never run `git add`. Only commit what is already staged.
 - If a pre-commit hook fails: report the failure verbatim and stop. Do not retry with `--amend` or any flag that bypasses hooks.
-- Never `git push`.
+- `git push` only when the user explicitly chose option 2. Never push otherwise.
