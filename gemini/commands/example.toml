@@ -1,0 +1,8 @@
+description = "Template Gemini CLI command — replace with what this command does."
+
+prompt = """
+You invoked /example with arguments: {{args}}
+
+Replace this prompt with the instructions Gemini should follow when the
+command is used. Keep it focused on a single intent.
+"""

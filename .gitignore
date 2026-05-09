@@ -1,0 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local-only overrides
+*.local.*
+.env
+.env.*
+
+# Node (in case any extension uses it)
+node_modules/
