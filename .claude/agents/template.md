@@ -1,5 +1,5 @@
 ---
-name: example-agent
+name: template
 description: Template subagent. Use when delegating <specific scoped task> to a fresh-context worker.
 tools: Read, Grep, Glob, Bash
 model: sonnet

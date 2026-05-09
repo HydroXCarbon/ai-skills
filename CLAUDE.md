@@ -22,7 +22,7 @@ Five item types live here. Each has a strict format; future-you should match an 
 | Gemini command | `.gemini/commands/<name>.toml` | TOML with `description` and `prompt` keys; body uses `{{args}}` |
 | Gemini extension | `.gemini/extensions/<name>/` (folder) | Must contain `gemini-extension.json`; may add `GEMINI.md` and `commands/*.toml` |
 
-Canonical references for each format live in the `example-*` templates (e.g. `.claude/commands/example.md`, `.claude/agents/example-agent.md`, `.claude/skills/example-skill/SKILL.md`, `.gemini/commands/example.toml`). **Do not symlink the examples** — copy them as starting points for new items.
+Canonical references for each format live in `template` files (`.claude/commands/template.md`, `.claude/agents/template.md`, `.claude/skills/template/SKILL.md`, `.gemini/commands/template.toml`). **Do not symlink the templates** — copy them as starting points for new items.
 
 ## Critical distinctions to keep straight
 

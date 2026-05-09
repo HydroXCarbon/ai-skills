@@ -36,7 +36,7 @@ config dir so edits here propagate live.
 Example:
 
 ```bash
-ln -s "$PWD/.claude/commands/example.md" ~/.claude/commands/example.md
+ln -s "$PWD/.claude/commands/<name>.md" ~/.claude/commands/<name>.md
 ```
 
 ## What goes where
@@ -53,5 +53,7 @@ ln -s "$PWD/.claude/commands/example.md" ~/.claude/commands/example.md
 
 ## Templates
 
-Each folder has one `example-*` template you can copy as a starting
-point. Don't symlink the examples — use them as references.
+Each item type ships a `template` scaffold you can copy as a starting
+point: `.claude/commands/template.md`, `.claude/agents/template.md`,
+`.claude/skills/template/`, `.gemini/commands/template.toml`. Don't
+symlink them — copy and rename.
