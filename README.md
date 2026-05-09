@@ -8,32 +8,35 @@ synced across machines and shared.
 
 ```
 ai-skills/
-├── claude/
+├── .claude/
 │   ├── skills/        # Claude Code skills (folder per skill, contains SKILL.md)
 │   ├── commands/      # Slash commands (.md with YAML frontmatter)
 │   └── agents/        # Subagent definitions (.md with frontmatter)
-└── gemini/
+└── .gemini/
     ├── commands/      # Gemini CLI commands (.toml)
     └── extensions/    # Gemini extensions (folder per extension)
 ```
 
-## Install (symlink into your CLI config)
+The dotfile names mean both CLIs **auto-discover** items when a session
+runs with this repo as cwd — no symlink needed for project-level use.
 
-Symlink an item from this repo into the CLI's config dir so edits here
-propagate live.
+## Install (global availability)
 
-| Source (this repo)                       | Target                                |
-| ---------------------------------------- | ------------------------------------- |
-| `claude/skills/<name>/`                  | `~/.claude/skills/<name>`             |
-| `claude/commands/<name>.md`              | `~/.claude/commands/<name>.md`        |
-| `claude/agents/<name>.md`                | `~/.claude/agents/<name>.md`          |
-| `gemini/commands/<name>.toml`            | `~/.gemini/commands/<name>.toml`      |
-| `gemini/extensions/<name>/`              | `~/.gemini/extensions/<name>`         |
+To make an item available across any cwd, symlink it into the user-level
+config dir so edits here propagate live.
+
+| Source (this repo)                        | Target                                |
+| ----------------------------------------- | ------------------------------------- |
+| `.claude/skills/<name>/`                  | `~/.claude/skills/<name>`             |
+| `.claude/commands/<name>.md`              | `~/.claude/commands/<name>.md`        |
+| `.claude/agents/<name>.md`                | `~/.claude/agents/<name>.md`          |
+| `.gemini/commands/<name>.toml`            | `~/.gemini/commands/<name>.toml`      |
+| `.gemini/extensions/<name>/`              | `~/.gemini/extensions/<name>`         |
 
 Example:
 
 ```bash
-ln -s "$PWD/claude/commands/example.md" ~/.claude/commands/example.md
+ln -s "$PWD/.claude/commands/example.md" ~/.claude/commands/example.md
 ```
 
 ## What goes where
