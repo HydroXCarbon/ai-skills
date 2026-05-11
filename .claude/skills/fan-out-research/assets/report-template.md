@@ -71,3 +71,26 @@ important threads.}
 
 - {Gap or low-confidence claim}
 - {Researcher disagreement worth surfacing}
+
+---
+
+## Raw Researcher Dumps
+
+<!--
+  Appended for traceability. One `### Researcher N — <angle>` subsection
+  per agent, containing that agent's verbatim output. Replaces the old
+  separate ./output/<slug>/raw/ folder so the whole report lives in one
+  readable file.
+-->
+
+### Researcher 1 — {angle}
+
+{verbatim output of researcher 1}
+
+### Researcher 2 — {angle}
+
+{verbatim output of researcher 2}
+
+### Researcher N — {angle}
+
+{verbatim output of researcher N}

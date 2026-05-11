@@ -67,7 +67,28 @@ See [references/synthesizer-prompt.md](references/synthesizer-prompt.md) for the
 
 ## Step 5 — Generate the PDF report
 
-Write the synthesized content to `./output/<slug>/report.md` first (markdown intermediate), then run the PDF generation script:
+Before generating, confirm with the user via `AskUserQuestion`:
+
+- **Generate PDF** — write the single consolidated markdown, then render PDF from it
+- **Markdown only** — write the single consolidated markdown, skip PDF
+- **Cancel** — stop without writing
+
+**Both non-Cancel options produce ONE consolidated file** at `./output/<slug>/report.md`. No separate `raw/` dumps — everything is compacted into this single document for easy reading. Order:
+
+1. **Title** — the research topic
+2. **Date** — generation date
+3. **Agents** — N and model name
+4. **Sources & URLs** — full list, numbered, with one-line annotations
+5. **Summary** — 2–3 paragraph executive summary
+6. **Key Findings** — bulleted list of the 5–10 most important takeaways
+7. **Tables** (optional) — only include if comparing entities/options across attributes
+8. **Raw Researcher Dumps** — appended as a final section with one `### Researcher N — <angle>` subsection per agent, containing that agent's verbatim output (traceability lives here instead of a separate folder)
+
+See [assets/report-template.md](assets/report-template.md) for the exact structure.
+
+If the user picks **Cancel**, stop here and report what was synthesized in-chat. Nothing is written.
+
+If the user picks **Generate PDF**, after writing the consolidated markdown, run the PDF generation script:
 
 ```
 python3 .claude/skills/fan-out-research/scripts/fan-out-research.py \
@@ -76,17 +97,6 @@ python3 .claude/skills/fan-out-research/scripts/fan-out-research.py \
   --title "<topic>" \
   --date "<YYYY-MM-DD>"
 ```
-
-The PDF must contain these major headers (see [assets/report-template.md](assets/report-template.md) for the exact structure):
-
-1. **Title** — the research topic
-2. **Date** — generation date
-3. **Sources & URLs** — full list, numbered, with one-line annotations
-4. **Summary** — 2–3 paragraph executive summary
-5. **Key Findings** — bulleted list of the 5–10 most important takeaways
-6. **Tables** (optional) — only include if comparing entities/options across attributes
-
-Also save raw researcher dumps to `./output/<slug>/raw/researcher-1.md` … `researcher-N.md` for traceability.
 
 ## Step 6 — Brief in-chat summary
 
@@ -125,5 +135,5 @@ If `./output/<slug>/` already exists, ask via `AskUserQuestion`:
 - Always default subagent model to `sonnet`.
 - Never dump the full PDF content into chat; the in-chat summary is bounded (see Step 6).
 - Never write outside `./output/<slug>/` — no edits to source code, no commits, no pushes.
-- Always preserve raw researcher dumps in `./output/<slug>/raw/` for traceability.
+- Always preserve raw researcher dumps as the final "Raw Researcher Dumps" section inside the single `report.md` — never write a separate `raw/` folder.
 - If PDF generation fails (missing dependency, etc.), report the failure and the path to the markdown intermediate — do not claim the PDF exists.
