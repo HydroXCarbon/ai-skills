@@ -13,6 +13,8 @@ allowed-tools: Read, Bash(git status:*), AskUserQuestion
 argument-hint: "[optional {thing}]"
 ---
 
+# {Command Display Name}
+
 <!--
   Body opener: one or two sentences stating the command's intent.
   This is the prompt Claude runs when the user invokes `/<name>`.

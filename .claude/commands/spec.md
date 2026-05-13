@@ -4,6 +4,8 @@ allowed-tools: Read, Write, Bash(git status:*), Bash(git rev-parse:*), Bash(git 
 argument-hint: "<feature brief>"
 ---
 
+# Spec
+
 Draft a planning spec for the brief in `$ARGUMENTS`. Create a new `claude/feature/<slug>` branch, then write `_specs/<slug>.md` from `_specs/template.md` with each section drafted from the brief. Planning only — no code, no implementation details.
 
 User input (may be empty): `$ARGUMENTS`

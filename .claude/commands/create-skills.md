@@ -4,7 +4,9 @@ allowed-tools: Read, Write, Edit, Bash(mkdir:*), Bash(cp:*), Bash(test:*), Bash(
 argument-hint: "[skill-slug]"
 ---
 
-Scaffold a new Claude skill under `.claude/skills/<slug>/` by copying `.claude/skills/template/`, then prompt for the parts to include and the script language.
+# Create Skills
+
+Scaffold a new Claude skill under `.claude/skills/<slug>/` by copying `.claude/skills/template/`. Claude infers which optional subfolders the skill needs from its description; the script language is still confirmed with the user if scripts are included.
 
 User-supplied slug (optional, may be empty): `$ARGUMENTS`
 
@@ -25,15 +27,17 @@ Ask via `AskUserQuestion` (one question per field):
 
 Hold these values for Step 5.
 
-## Step 3 — Pick optional subfolders
+## Step 3 — Decide optional subfolders (Claude decides)
 
-Ask via `AskUserQuestion` with `multiSelect: true`:
+Based on the skill's description from Step 2, infer which of the three optional subfolders the skill needs. Do **not** ask the user — make the call yourself. Empty selection is valid (SKILL.md only).
 
-- **scripts/** — executable code the skill runs
-- **references/** — sub-condition / detailed-data files loaded only when needed
-- **assets/** — templates, images, fonts, fixtures, any static file
+Decision heuristics:
 
-Author may pick zero, one, two, or all three. Empty selection is valid (SKILL.md only).
+- **scripts/** — include if the skill needs executable code: parsing, automation, data processing, API calls, validation logic, or any step better expressed in code than prose. Skip if the skill is purely procedural prose (asking questions, running shell one-liners, writing files via `Write`).
+- **references/** — include if the skill has detailed sub-conditions, lookup tables, playbooks, or deep-dive material that should only load when a specific branch fires. Skip if the SKILL.md body already contains everything needed inline.
+- **assets/** — include if the skill needs static files at runtime: templates, fixtures, sample configs, images, fonts. Skip if no static file is needed.
+
+After deciding, announce the choice in one short sentence (e.g. *"Including `references/` and `assets/` — skill needs a crash-handling playbook and a TSV header template."*) so the user can override if they disagree. Proceed without waiting unless they object.
 
 ## Step 4 — Pick scripts language (only if scripts/ chosen)
 

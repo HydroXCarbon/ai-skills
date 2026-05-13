@@ -4,6 +4,8 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git c
 argument-hint: "[optional type hint, e.g. fix or docs]"
 ---
 
+# Commit Message
+
 Draft a commit message for the **currently staged** changes using Conventional Commits with an emoji prefix, then offer to commit.
 
 User hint (optional, may be empty): `$ARGUMENTS`
