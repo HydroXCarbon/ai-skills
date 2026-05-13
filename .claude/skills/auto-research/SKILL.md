@@ -1,7 +1,7 @@
 ---
 name: auto-research
 description: "Use when the user wants to run an autonomous ML/code experimentation loop — sets up a branch, establishes a baseline, then iterates experiments indefinitely, logging results to results.tsv."
-argument-hint: "<run-tag>"
+argument-hint: "[metric=<name>] [direction=lower|higher] [scope=<path,...>] [budget=<minutes>]"
 allowed-tools: "Read, Write, Edit, Bash, AskUserQuestion"
 ---
 
@@ -17,6 +17,23 @@ Trigger phrases include "auto-research this", "run experiments overnight", "tune
 
 Do **not** trigger for one-off training jobs, single-experiment requests, or general code edits — those are normal coding tasks. This skill is specifically for **autonomous, indefinite, branch-isolated** experiment loops.
 
+## Arguments
+
+Parse `$ARGUMENTS` before doing anything else. Arguments are optional key=value pairs supplied by the user when invoking the skill. Recognized keys:
+
+| Key | Values | Default | Effect |
+|-----|--------|---------|--------|
+| `metric` | any string | ask | Primary metric column name in `results.tsv`; used in `grep "^<metric>:"` |
+| `direction` | `lower` \| `higher` | ask | Whether a lower or higher score is better |
+| `scope` | comma-separated paths | ask | Files/dirs Claude may edit without asking; e.g. `src/,model.py` |
+| `budget` | integer (minutes) | `5` | Wall-clock time limit per training run before killing the process |
+
+**Parsing rules:**
+- Strip each token, split on `=`, trim whitespace.
+- Unknown keys → warn the user and ignore.
+- For each recognized key that is present, skip the matching `AskUserQuestion` in **Open questions** — treat the value as already confirmed.
+- If `$ARGUMENTS` is empty or absent, all open questions remain active.
+
 ## Step 1 — Setup
 
 Run the following in order. Stop and ask via `AskUserQuestion` if any step is ambiguous.
@@ -25,8 +42,8 @@ Run the following in order. Stop and ask via `AskUserQuestion` if any step is am
 2. **Pick the project slug.** Use the repo's name or ask the user. The branch will be `auto-research/<slug>-<run-tag>`.
 3. **Check the branch is fresh.** Run `git rev-parse --verify auto-research/<slug>-<run-tag>` — if it exists, **stop** and report; do not reuse a prior run.
 4. **Create the branch** from current `master`/`main`: `git checkout -b auto-research/<slug>-<run-tag>`.
-5. **Read the in-scope files for context.** At minimum `README.md`. Read any other repo-specific orientation file the user names.
-6. **Initialize `results.tsv`** with just the header row. Columns: `commit\tscore\t<other-metrics>\tstatus\tdescription`. Confirm metric column names with the user.
+5. **Read the in-scope files for context.** At minimum `README.md`. If `scope` was supplied via arguments, read those paths; otherwise read any repo-specific orientation file the user names.
+6. **Initialize `results.tsv`** with just the header row. Columns: `commit\tscore\t<other-metrics>\tstatus\tdescription`. If `metric` was supplied via arguments, use it directly; otherwise confirm metric column names with the user.
 7. **Confirm and go.** Summarize setup back to the user and wait for explicit go-ahead before starting the loop.
 
 ## Step 2 — Baseline run

@@ -6,8 +6,8 @@ This is an experiment to have the LLM do its own research.
 
 To set up a new experiment, work with the user to:
 
-1. **Agree on a run tag**: propose a tag based on today's date (e.g. `mar5`). The branch `auto-research/<slug>-<tag>` must not already exist — this is a fresh run.
-2. **Create the branch**: `git checkout -b auto-research/<slug>-<tag>` from current master.
+1. **Agree on a run tag**: propose a tag based on today's date (e.g. `mar5`). The branch `auto-research/<topic-slug>-<tag>` must not already exist — this is a fresh run.
+2. **Create the branch**: `git checkout -b auto-research/<topic-slug>-<tag>` from current master.
 3. **Read the in-scope files**: The repo is small. Read these files for full context:
    - `README.md` — repository context.
 4. **Initialize results.tsv**: Create `results.tsv` with just the header row. The baseline will be recorded after the first run.
@@ -75,7 +75,7 @@ b2c3d4e	0.993200	44.2	keep	increase LR to 0.04
 
 ## The experiment loop
 
-The experiment runs on a dedicated branch (e.g. `auto-research/<slug>-mar5`).
+The experiment runs on a dedicated branch (e.g. `auto-research/<topic-slug>-mar5`).
 
 LOOP FOREVER:
 
