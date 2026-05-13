@@ -17,6 +17,13 @@ Trigger phrases include "deep research on X", "research X with multiple angles",
 
 Do **not** trigger for single-source lookups, factual questions answerable from the user's own files, or codebase exploration — those are different skills (use `research` for single-agent web research, or `gsd-explore` for ideation).
 
+## Arguments
+
+Parse `$ARGUMENTS` to extract the research topic and optional flags. Recognized arguments:
+
+- **topic** (unnamed) — the primary research question or subject.
+- **--agents N** — the number of parallel agents to spawn (default 5, min 3, max 10).
+
 ## Step 1 — Resolve topic and slug
 
 - If `$ARGUMENTS` is non-empty, use it as the topic. Otherwise ask via `AskUserQuestion` for the research topic.

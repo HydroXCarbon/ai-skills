@@ -38,10 +38,10 @@ Parse `$ARGUMENTS` before doing anything else. Arguments are optional key=value 
 
 Run the following in order. Stop and ask via `AskUserQuestion` if any step is ambiguous.
 
-1. **Agree on a run tag.** Propose `<run-tag>` based on today's date (e.g. `mar5`). Confirm with the user.
-2. **Pick the project slug.** Use the repo's name or ask the user. The branch will be `auto-research/<slug>-<run-tag>`.
-3. **Check the branch is fresh.** Run `git rev-parse --verify auto-research/<slug>-<run-tag>` — if it exists, **stop** and report; do not reuse a prior run.
-4. **Create the branch** from current `master`/`main`: `git checkout -b auto-research/<slug>-<run-tag>`.
+1. **Generate a run tag.** Use today's date (e.g. `may13`) as the `<run-tag>` automatically.
+2. **Identify the research goal.** Generate a 2–4 word kebab-case summary of the specific experiment (e.g. `optim-adamw` or `reduce-latency`). This is the `<topic-summary>`.
+3. **Check the branch is fresh.** The branch name is `auto-research/<topic-summary>-<run-tag>`. Run `git rev-parse --verify auto-research/<topic-summary>-<run-tag>` — if it exists, **stop** and report; do not reuse a prior run.
+4. **Create the branch** from current `master`/`main`: `git checkout -b auto-research/<topic-summary>-<run-tag>`.
 5. **Read the in-scope files for context.** At minimum `README.md`. If `scope` was supplied via arguments, read those paths; otherwise read any repo-specific orientation file the user names.
 6. **Initialize `results.tsv`** with just the header row. Columns: `commit\tscore\t<other-metrics>\tstatus\tdescription`. If `metric` was supplied via arguments, use it directly; otherwise confirm metric column names with the user.
 7. **Confirm and go.** Summarize setup back to the user and wait for explicit go-ahead before starting the loop.
@@ -68,7 +68,7 @@ The very first run establishes the baseline — run the training script unmodifi
 6. **Handle empty grep (crash)**: `tail -n 50 run.log` to read the stack trace.
    - **Trivial fix** (typo, missing import) → fix, re-run.
    - **Fundamentally broken idea** → log `crash` in `results.tsv` with description, `git reset --hard` to prior commit, move on.
-7. **Log result** to `results.tsv` (tab-separated). Status is `keep`, `discard`, or `crash`.
+7. **Log EVERY result** to `results.tsv` (tab-separated). Status is `keep`, `discard`, or `crash`. **You must log every single attempt**, even if the score is worse or identical.
 8. **Advance or reset:**
    - **Score improved** → keep the commit, advance the branch.
    - **Score equal or worse** → `git reset --hard` to the prior commit. Status `discard`.

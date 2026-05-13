@@ -27,6 +27,13 @@ Do **not** trigger for:
 
 The distinguishing feature is **agreement scoring across identical prompts**, not coverage breadth.
 
+## Arguments
+
+Parse `$ARGUMENTS` to extract the research topic and optional flags. Recognized arguments:
+
+- **topic** (unnamed) — the primary research question or subject.
+- **--agents N** — the number of parallel agents to spawn (default 5, min 3, max 10).
+
 ## Step 1 — Resolve topic and slug
 
 - If `$ARGUMENTS` is non-empty, use it as the topic. Otherwise ask via `AskUserQuestion` for the research topic.

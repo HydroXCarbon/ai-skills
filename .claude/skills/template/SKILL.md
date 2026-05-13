@@ -45,6 +45,16 @@ Trigger phrases include "{example phrase 1}", "{example phrase 2}", "{example ph
 
 Do **not** trigger for {boundary case 1} or {boundary case 2} — those are different skills.
 
+## Arguments
+
+<!--
+  Description of the arguments this skill accepts. Skills do not
+  receive $ARGUMENTS directly; instead, identify the semantic
+  fields this skill extracts from the user's prompt.
+-->
+
+- **{arg1}** — {description}
+
 ## Step 1 — {verb phrase}
 
 <!-- What the skill does first. Validate input, gather context, slugify
