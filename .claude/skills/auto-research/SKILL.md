@@ -1,6 +1,6 @@
 ---
 name: auto-research
-description: "Use when the user wants to run an autonomous ML/code experimentation loop — sets up a branch, establishes a baseline, then iterates experiments indefinitely, logging results to results.tsv."
+description: "Use when the user wants to run an autonomous experimentation loop — sets up a branch, establishes a baseline, then iterates experiments indefinitely, logging results to results.tsv."
 argument-hint: "[metric=<name>] [direction=lower|higher] [scope=<path,...>] [budget=<minutes>]"
 allowed-tools: "Read, Write, Edit, Bash, AskUserQuestion"
 ---
@@ -9,107 +9,102 @@ allowed-tools: "Read, Write, Edit, Bash, AskUserQuestion"
 
 ## Overview
 
-This skill runs Claude as an autonomous researcher on a dedicated branch. Given a project slug and run tag, it sets up an isolated branch, establishes a baseline, then loops forever: tune code → commit → run → measure → keep or reset. Each experiment runs on a fixed time budget (default 5 minutes wall-clock training time). Results are appended to `results.tsv` and the branch advances only when the score improves.
+This skill runs Claude as an autonomous researcher on a dedicated branch. Given a project slug and run tag, it sets up an isolated branch, establishes a baseline, then loops forever: tune code → commit → run → measure → keep or reset. Results are appended to `results.tsv` and the branch advances only when the score strictly improves.
 
 ## When to use
 
-Trigger phrases include "auto-research this", "run experiments overnight", "tune this autonomously", "loop on training runs and keep the best".
+Trigger phrases include "auto-research this", "run experiments overnight", "tune this autonomously", "loop on experiments and keep the best".
 
-Do **not** trigger for one-off training jobs, single-experiment requests, or general code edits — those are normal coding tasks. This skill is specifically for **autonomous, indefinite, branch-isolated** experiment loops.
+Do **not** trigger for one-off runs, single-experiment requests, or general code edits — those are normal tasks. This skill is for **autonomous, indefinite, branch-isolated** experiment loops.
 
 ## Arguments
 
-Parse `$ARGUMENTS` before doing anything else. Arguments are optional key=value pairs supplied by the user when invoking the skill. Recognized keys:
+Parse `$ARGUMENTS` before doing anything else. Recognized keys:
 
 | Key | Values | Default | Effect |
 |-----|--------|---------|--------|
-| `metric` | any string | ask | Primary metric column name in `results.tsv`; used in `grep "^<metric>:"` |
-| `direction` | `lower` \| `higher` | ask | Whether a lower or higher score is better |
-| `scope` | comma-separated paths | ask | Files/dirs Claude may edit without asking; e.g. `src/,model.py` |
-| `budget` | integer (minutes) | `5` | Wall-clock time limit per training run before killing the process |
+| `metric` | any string | ask | Primary metric column name in `results.tsv` |
+| `direction` | `lower` \| `higher` | ask | Whether lower or higher score is better |
+| `scope` | comma-separated paths | ask | Files/dirs editable without asking; e.g. `app/,src/` |
+| `budget` | integer (minutes) | `5` | Wall-clock time limit per run before killing |
 
-**Parsing rules:**
-- Strip each token, split on `=`, trim whitespace.
-- Unknown keys → warn the user and ignore.
-- For each recognized key that is present, skip the matching `AskUserQuestion` in **Open questions** — treat the value as already confirmed.
-- If `$ARGUMENTS` is empty or absent, all open questions remain active.
+Unknown keys → warn the user and ignore. For each recognized key present, skip the matching `AskUserQuestion`.
 
+---
 ## Step 1 — Setup
 
-Run the following in order. Stop and ask via `AskUserQuestion` if any step is ambiguous.
+1. **Generate a run tag.** Use today's date (e.g. `may14`) as `<run-tag>`.
+2. **Identify the research goal.** 2–4 word kebab-case summary (e.g. `lighthouse-perf`). This is `<topic-summary>`.
+3. **Check the branch is fresh.** Branch name: `auto-research/<topic-summary>-<run-tag>`. If it exists, **stop** and report — never reuse a prior run.
+4. **Create the branch** from current `main`/`master`: `git checkout -b auto-research/<topic-summary>-<run-tag>`.
+5. **Read the in-scope files for context.** At minimum `README.md` and `CLAUDE.md` (if present). Read `scope` paths if supplied.
+6. **Check for a project runner.** Look for a script the project already provides for measurement (e.g. `lighthouse/scripts/run.mjs`, `scripts/eval.py`). If one exists, use it — don't invent your own. Read it to understand its flags.
+7. **Initialize `results.tsv`** with just the header row. Use the columns the project runner already produces if one exists; otherwise confirm column names with the user.
+8. **Check for dashboard.** Check if `dashboard/index.html` exists. If not, ask via `AskUserQuestion`: "No dashboard found. Would you like me to create a basic auto-refreshing dashboard to track progress?" If yes, create it according to the [Dashboard Specification](references/dashboard.md).
+9. **Confirm and go.** Summarize setup and wait for explicit go-ahead.
 
-1. **Generate a run tag.** Use today's date (e.g. `may13`) as the `<run-tag>` automatically.
-2. **Identify the research goal.** Generate a 2–4 word kebab-case summary of the specific experiment (e.g. `optim-adamw` or `reduce-latency`). This is the `<topic-summary>`.
-3. **Check the branch is fresh.** The branch name is `auto-research/<topic-summary>-<run-tag>`. Run `git rev-parse --verify auto-research/<topic-summary>-<run-tag>` — if it exists, **stop** and report; do not reuse a prior run.
-4. **Create the branch** from current `master`/`main`: `git checkout -b auto-research/<topic-summary>-<run-tag>`.
-5. **Read the in-scope files for context.** At minimum `README.md`. If `scope` was supplied via arguments, read those paths; otherwise read any repo-specific orientation file the user names.
-6. **Initialize `results.tsv`** with just the header row. Columns: `commit\tscore\t<other-metrics>\tstatus\tdescription`. If `metric` was supplied via arguments, use it directly; otherwise confirm metric column names with the user.
-7. **Confirm and go.** Summarize setup back to the user and wait for explicit go-ahead before starting the loop.
+---
 
 ## Step 2 — Baseline run
 
-The very first run establishes the baseline — run the training script unmodified.
+The first run captures unmodified baseline. Run the measurement command and record result with status `keep`.
 
-- Run the script: `<train-command> > run.log 2>&1` (e.g. `uv run train.py > run.log 2>&1`).
-- Extract metrics: `grep "^<metric_name>:" run.log` for each tracked metric.
-- If grep is empty, the run crashed — `tail -n 50 run.log`, diagnose, fix, re-run.
-- Record the result in `results.tsv` with status `keep` and description `baseline`.
+- Run: `<measure-command> --note="baseline"` (append TSV row).
+- If the runner defaults to `discard` status (correct behaviour), **immediately** promote the baseline: `<measure-command> --set-last-status=keep` or equivalent.
+- Extract the baseline score — this becomes `best_score`.
 - Do **not** commit `results.tsv`.
+
+---
 
 ## Step 3 — Experiment loop
 
-**LOOP FOREVER** until the user manually interrupts. Each iteration:
+**LOOP FOREVER** until the user manually interrupts.
 
-1. **Note git state**: current branch HEAD.
-2. **Propose an experimental idea.** Tune the source code — anything in scope is fair game: architecture, logic, hyperparameters, batch size, optimizer, etc. Out-of-scope files require asking the user first. **Never modify the evaluation harness.**
-3. **Commit** the change with a one-line description of the experiment.
-4. **Run** the training script: `<train-command> > run.log 2>&1`.
-5. **Read results**: `grep "^<metric_name>:" run.log`.
-6. **Handle empty grep (crash)**: `tail -n 50 run.log` to read the stack trace.
-   - **Trivial fix** (typo, missing import) → fix, re-run.
-   - **Fundamentally broken idea** → log `crash` in `results.tsv` with description, `git reset --hard` to prior commit, move on.
-7. **Log EVERY result** to `results.tsv` (tab-separated). Status is `keep`, `discard`, or `crash`. **You must log every single attempt**, even if the score is worse or identical.
+### Each iteration
+
+1. **Record HEAD**: `prev_commit=$(git rev-parse HEAD)`, `best_score=<last keep row's score>`.
+2. **Propose an idea.** Tune only in-scope files. Out-of-scope requires asking first. **Never touch the measurement harness.**
+3. **Commit** the change: `git commit -m "exp: <description>"`.
+4. **Run** the measurement: `<measure-command> --note="<description>"`.
+   - Runner should write status `discard` by default.
+5. **Read the new score** from stdout or the last TSV row.
+6. **Handle crashes** (empty/zero score, error output):
+   - Trivial fix (typo, import) → fix, re-run.
+   - Broken idea → log `crash` in TSV, `git reset --hard $prev_commit`, continue.
+7. **Compare** new score to `best_score`.
 8. **Advance or reset:**
-   - **Score improved** → keep the commit, advance the branch.
-   - **Score equal or worse** → `git reset --hard` to the prior commit. Status `discard`.
-   - **Simplification win** (equal score + simpler code) → keep. Status `keep`.
+   - **Strictly better** → promote: `<measure-command> --set-last-status=keep`. Update `best_score`. Keep the commit.
+   - **Equal or worse** → `git reset --hard $prev_commit`. The TSV row stays with `discard` status (TSV is not versioned, git reset does not touch it).
+   - **Simplification win** (equal score, meaningfully simpler code) → promote to `keep`.
 
-### Simplicity criterion
-
-All else being equal, simpler is better. A tiny score gain that adds 20 lines of hacky code → reject. A tiny score gain by deleting code → keep. A neutral change that simplifies → keep.
+See [references/protocol.md](references/protocol.md) for the TSV status and scoring protocol.
 
 ### NEVER STOP
 
-Once the loop has begun, do **not** pause to ask the human if you should continue. The user might be asleep or away from the keyboard — they expect indefinite autonomous operation until they manually interrupt. If you run out of ideas: re-read the in-scope files for new angles, combine prior near-misses, try more radical architectural changes, look up referenced papers. The loop runs until interrupted, period.
+Do **not** pause to ask "should I continue?" The user expects indefinite autonomous operation. If you run out of ideas: re-read in-scope files for new angles, combine prior near-misses, try more radical changes. The loop runs until interrupted.
 
-### Timeouts and crashes
+### Timeouts
 
-- If a run hangs or exceeds budget, kill it and treat as failure (`crash` status).
-- Use judgment on crashes: fix-and-retry for typos/imports; skip for fundamentally broken ideas.
+If a run hangs past `budget`, kill it and treat as `crash`.
 
-<!--
-  ─── Subfolder reference cheatsheet ───
-  For detailed criteria, see [references/example.md](references/example.md).
-  Use the template at [assets/README.md](assets/README.md).
--->
+---
 
-## Open questions
+## Open questions (if not provided)
 
-If the user has not specified the training command or metric names, ask via `AskUserQuestion`:
+Ask via `AskUserQuestion`:
 
-- **Training command** — what to run (e.g. `uv run train.py`, `npm run dev`, `python train.py`).
-- **Primary metric** — the column to optimize, and whether lower or higher is better.
-- **Secondary metrics** — any additional columns to track in `results.tsv`.
+- **Measurement command** — what to run (e.g. `node lighthouse/scripts/run.mjs`, `uv run eval.py`).
+- **Primary metric** — column name and direction (lower/higher).
+- **Secondary metrics** — any additional columns to track.
+- **Source directory** — what's in scope to edit. Anything outside requires approval.
 
-If the in-scope files for editing are unclear, ask:
-
-- **Source directory** — typically `src/`, but confirm. Anything outside this scope requires user approval before edits.
+---
 
 ## Hard rules
 
-- Never modify the evaluation harness.
-- Never modify files outside the agreed-upon source scope without asking the user first.
+- **Never keep a commit with an equal or lower score.** Reset immediately. Do not change old TSV rows.
+- Never modify the measurement harness or `results.tsv` schema.
 - Never commit `results.tsv`.
-- Never reuse an existing `auto-research/<slug>-<run-tag>` branch — every run is fresh.
-- Never stop the loop to ask "should I continue?" — only stop on manual interrupt, fatal error, or explicit user instruction.
-- Never run destructive git operations (`git push --force`, `git branch -D master`) — the loop only resets within its own branch.
+- Never reuse an existing `auto-research/<slug>-<run-tag>` branch.
+- Never stop to ask "should I continue?" — only stop on manual interrupt or fatal error.
+- Never run `git push --force` or `git branch -D` on protected branches.
