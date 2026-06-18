@@ -1,24 +1,35 @@
 ---
-description: Draft a planning spec from a brief, on a new claude/feature/<slug> branch.
-allowed-tools: Read, Write, Bash(git status:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git branch:*), Bash(test:*), AskUserQuestion
+name: spec
+description: "Use when the user wants to draft a planning spec for a feature, create a spec document, or start a new feature spec branch."
 argument-hint: "<feature brief>"
+allowed-tools: "Read, Write, Bash(git status:*), Bash(git rev-parse:*), Bash(git checkout:*), Bash(git branch:*), Bash(test:*), AskUserQuestion"
 ---
 
 # Spec
 
-Draft a planning spec for the brief in `$ARGUMENTS`. Create a new `claude/feature/<slug>` branch, then write `_specs/<slug>.md` from `_specs/template.md` with each section drafted from the brief. Planning only — no code, no implementation details.
+## Overview
 
-User input (may be empty): `$ARGUMENTS`
+Drafts a planning spec for a feature brief on a new `claude/feature/<slug>` branch. Reads `_specs/template.md` to produce a structured `_specs/<slug>.md` document. Planning only — no code, no implementation details, no file paths or library choices.
+
+## When to use
+
+Trigger phrases include "draft a spec", "write a spec for", "create a feature spec", "plan this feature", "spec out", "start a spec branch".
+
+Do **not** trigger for implementing a feature, editing an existing spec, or general planning discussions — those are separate tasks.
+
+## Arguments
+
+- **feature brief** — one or two sentences describing the feature to spec out. If omitted, Claude will ask.
 
 ## Step 1 — Validate brief and derive slug
 
-- If `$ARGUMENTS` is empty: ask via `AskUserQuestion` for the feature brief in one or two sentences. Use the answer as the brief.
+- If no brief was provided: ask via `AskUserQuestion` for the feature brief in one or two sentences. Use the answer as the brief.
 - Derive `feature-slug` from the brief: lowercase, replace spaces and `_` with `-`, strip punctuation other than `-`, collapse repeated `-`, trim leading/trailing `-`. Cap at ~60 chars.
 - Reject reserved slug `template`. **Stop.**
 
 ## Step 2 — Verify clean working tree
 
-Run in parallel (single message, multiple Bash calls):
+Run in parallel:
 
 - `git status --porcelain`
 - `git rev-parse --abbrev-ref HEAD` (capture as source branch for the final report)
@@ -40,7 +51,7 @@ If checkout fails for any reason, report the error verbatim and stop. Do not ret
 
 ## Step 5 — Draft the spec
 
-Create a markdown spec document that plan mode can use directly, and save it to `_specs/<feature-slug>.md`. Use the **exact structure** defined in `_specs/template.md` — that file owns the section list, per-section guidance, and the authoring rules.
+Create a markdown spec document and save it to `_specs/<feature-slug>.md`. Use the **exact structure** defined in `_specs/template.md` — that file owns the section list, per-section guidance, and the authoring rules.
 
 - Read `_specs/template.md`. Follow its structure and its top-comment authoring rules verbatim.
 - Substitute `<feature-name>` in the H1 with a human-readable feature name (title-cased slug by default; override if the brief implies a clearer name).

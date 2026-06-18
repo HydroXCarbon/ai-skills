@@ -1,18 +1,29 @@
 ---
-description: Scaffold a new Claude skill folder from `.claude/skills/template/` with optional scripts, references, and assets.
-allowed-tools: Read, Write, Edit, Bash(mkdir:*), Bash(cp:*), Bash(test:*), Bash(ln:*), Bash(realpath:*), AskUserQuestion
+name: create-skills
+description: "Use when the user wants to scaffold a new Claude skill folder from the template, create a new skill, or add a skill to the project."
 argument-hint: "[skill-slug]"
+allowed-tools: "Read, Write, Edit, Bash(mkdir:*), Bash(cp:*), Bash(test:*), Bash(ln:*), Bash(realpath:*), AskUserQuestion"
 ---
 
 # Create Skills
 
-Scaffold a new Claude skill under `.claude/skills/<slug>/` by copying `.claude/skills/template/`. Claude infers which optional subfolders the skill needs from its description; the script language is still confirmed with the user if scripts are included.
+## Overview
 
-User-supplied slug (optional, may be empty): `$ARGUMENTS`
+Scaffolds a new Claude skill under `.claude/skills/<slug>/` by copying `.claude/skills/template/`. Claude infers which optional subfolders (`scripts/`, `references/`, `assets/`) the skill needs from its description; the script language is confirmed with the user if scripts are included.
+
+## When to use
+
+Trigger phrases include "create a new skill", "scaffold a skill", "add a skill", "new skill called", "set up a skill folder".
+
+Do **not** trigger for editing an existing skill, running a skill, or listing skills — those are separate tasks.
+
+## Arguments
+
+- **skill-slug** *(optional)* — the desired kebab-case identifier for the new skill. If omitted, Claude will ask.
 
 ## Step 1 — Resolve the slug
 
-- If `$ARGUMENTS` is non-empty: slugify it — lowercase, replace spaces and `_` with `-`, strip punctuation other than `-`, collapse repeated `-`.
+- If an argument was provided: slugify it — lowercase, replace spaces and `_` with `-`, strip punctuation other than `-`, collapse repeated `-`.
 - If empty: ask the user via `AskUserQuestion` for the skill name, then slugify their answer.
 - Run `test -d .claude/skills/<slug>/`. **If the directory exists, stop and report the conflict.** Do not overwrite; do not add a numeric suffix.
 - Reject reserved name `template`. **Stop.**
@@ -45,9 +56,9 @@ Ask via `AskUserQuestion`:
 
 - **Python (Recommended)** — keep `scripts/example.py` as-is, rename to `scripts/<slug>.py`.
 - **Other** — ask in a follow-up `AskUserQuestion` which language. Generate the equivalent stub:
-  - file extension matches the language (`.js`, `.ts`, `.sh`, `.rb`, etc.).
-  - module-level docstring/comment mirrors the Python stub's wording, in the chosen language's idiomatic comment style.
-  - main entry mirrors the Python `if __name__ == "__main__":` pattern (e.g. `function main()` for JS, top-level for shell).
+  - File extension matches the language (`.js`, `.ts`, `.sh`, `.rb`, etc.).
+  - Module-level docstring/comment mirrors the Python stub's wording, in the chosen language's idiomatic comment style.
+  - Main entry mirrors the Python `if __name__ == "__main__":` pattern (e.g. `function main()` for JS, top-level for shell).
 
 ## Step 5 — Generate the skill folder
 
@@ -69,7 +80,7 @@ Run these in order:
 
 Ask via `AskUserQuestion`:
 
-- **Symlink to `~/.claude/skills/<slug>/`** (Recommended for skills used across projects) — `ln -s "$(realpath .claude/skills/<slug>)" ~/.claude/skills/<slug>`.
+- **Symlink to `~/.claude/skills/<slug>/`** *(Recommended for skills used across projects)* — `ln -s "$(realpath .claude/skills/<slug>)" ~/.claude/skills/<slug>`.
 - **No, project-level only** — skill loads only when this repo is cwd.
 
 If the symlink target already exists, **stop** before running `ln` and report the conflict. Do not pass `-f`.
