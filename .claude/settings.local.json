@@ -1,5 +1,7 @@
 {
+  "theme": "dark",
   "permissions": {
+    "defaultMode": "default",
     "allow": [
       "Bash(npm run *)",
       "Bash(git status *)",
