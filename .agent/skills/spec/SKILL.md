@@ -7,7 +7,7 @@ description: "Use when the user wants to draft a planning spec for a feature, cr
 
 ## Overview
 
-Drafts a planning spec for a feature brief on a new `claude/feature/<slug>` branch. Reads `_specs/template.md` to produce a structured `_specs/<slug>.md` document. Planning only — no code, no implementation details, no file paths or library choices.
+Drafts a planning spec for a feature brief on a new `claude/feature/<slug>` branch. Reads the bundled `assets/template.md` (relative to this SKILL.md) to produce a structured `_specs/<slug>.md` document. Planning only — no code, no implementation details, no file paths or library choices.
 
 ## When to use
 
@@ -49,9 +49,9 @@ If checkout fails for any reason, report the error verbatim and stop. Do not ret
 
 ## Step 5 — Draft the spec
 
-Create a markdown spec document and save it to `_specs/<feature-slug>.md`. Use the **exact structure** defined in `_specs/template.md`.
+Create a markdown spec document and save it to `_specs/<feature-slug>.md`. Use the **exact structure** defined in this skill's bundled `assets/template.md`.
 
-- Read `_specs/template.md`. Follow its structure and its top-comment authoring rules verbatim.
+- Read the bundled `assets/template.md` from the skill's base directory (not from the target project — the project need not have it). Follow its structure and its top-comment authoring rules verbatim.
 - Substitute `<feature-name>` in the H1 with a human-readable feature name (title-cased slug by default; override if the brief implies a clearer name).
 - Draft each section from the brief, obeying the per-section guidance written in the template's HTML comments.
 - Write the result to `_specs/<feature-slug>.md`. Do not add technical implementation details such as code examples.

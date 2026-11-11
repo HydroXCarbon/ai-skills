@@ -16,7 +16,6 @@ ai-skills/
 │   └── settings.local.json
 ├── .agent/
 │   └── skills/            # Antigravity skills (folder per skill, contains SKILL.md)
-├── _specs/                # Planning specs (see the `spec` skill)
 ├── AGENTS.md              # Conventions for all AI agents working in this repo
 └── CLAUDE.md              # Claude Code-specific guidance
 ```
@@ -63,8 +62,7 @@ ln -s "$PWD/.claude/commands/<name>.md" ~/.claude/commands/<name>.md
 
 Each item type ships a `template` scaffold you can copy as a starting
 point: `.claude/commands/template.md`, `.claude/agents/template.md`,
-`.claude/skills/template/`, `_specs/template.md`. Don't symlink them —
-copy and rename.
+`.claude/skills/template/`.
 
 Antigravity has no separate scaffold: copy `.claude/skills/template/`
 and apply the frontmatter/tool-name adaptations listed above.
