@@ -7,12 +7,13 @@ Reference list of plugins and MCP servers used with Claude Code in this vault. R
 ## Install commands
 
 ```bash
-# Official marketplace (skill-creator, superpowers, frontend-design)
+# Official marketplace (skill-creator, frontend-design, code-simplifier)
+/plugin marketplace add anthropics/claude-plugins-official
 /plugin install skill-creator@claude-plugins-official
-/plugin install superpowers@claude-plugins-official
 /plugin install frontend-design@claude-plugins-official
+/plugin install code-simplifier@claude-plugins-official
 
-# Buildomator (successor to GSD / get-shit-done-cc)
+# Buildomator
 /plugin marketplace add buildomator/marketplace
 /plugin install bm@buildomator
 /reload-plugins
@@ -38,8 +39,8 @@ claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
 | Plugin | Purpose |
 | --- | --- |
 | `skill-creator` | Create, edit, eval, and benchmark Claude skills. Use when scaffolding or tuning a skill. |
-| `superpowers` | Discipline framework — meta-skills for TDD, debugging, brainstorming, plan writing, code review, parallel agents, worktrees. Adds the "always invoke skills first" rule. |
 | `frontend-design` | Generates distinctive, production-grade frontend code (components, pages, apps) that avoids generic AI aesthetics. |
+| `code-simplifier` | Simplifies and refines recently changed code for clarity and consistency while preserving behavior. |
 | `bm` (Buildomator) | Plans, executes, and verifies coding work — phases, plans, milestones, audits, code review, UAT, ship. Each step runs in an isolated subcontext; project state lives in an MCP server and resumes after `/compact`. Commands use the `/bm:` prefix. Successor to GSD (`get-shit-done-cc`) and bundles its own SDK. |
 | `context-mode` | Context-window protection. Provides `ctx_*` MCP tools that index large outputs (logs, fetches, batch commands) and let Claude search them instead of dumping into context. |
 | `claude-mem` | Persistent cross-session memory database. Auto-captures observations and lets future sessions search prior work via `mem-search`. |
@@ -52,7 +53,7 @@ claude mcp add context7 -- npx -y @upstash/context7-mcp@latest
 
 ## Notes
 
-- `skill-creator`, `superpowers`, and `frontend-design` all live on the `claude-plugins-official` marketplace (preinstalled — no `marketplace add` needed).
+- `skill-creator`, `frontend-design`, and `code-simplifier` live on the `claude-plugins-official` marketplace. It is usually preinstalled, so the `marketplace add` line is only needed if it's missing.
 - `bm`, `context-mode`, and `claude-mem` need their marketplaces added first.
 - Third-party marketplaces clone over SSH. On a fresh machine, run `ssh -T git@github.com` once and accept GitHub's host key, or `marketplace add` fails with "Host key verification failed".
 - Migrating from GSD: remove any global SDK first (`npm uninstall -g get-shit-done-cc`), since a global `gsd-sdk`/`bm-sdk` binary overrides the one the plugin bundles. On first run, Buildomator backs up `~/.claude/get-shit-done/` to `get-shit-done-legacy/` and removes the old GSD skills, agents, and hooks. Update it via `/plugin` → Marketplace, not `/bm:update`.

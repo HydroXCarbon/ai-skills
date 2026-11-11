@@ -23,7 +23,7 @@ Trigger phrases include "stochastic consensus research on X", "multi-agent conse
 Do **not** trigger for:
 - Single-source lookups — use the `research` skill.
 - Multi-angle fan-out research — use `fan-out-research` instead (different angles, not consensus).
-- Codebase exploration — use `gsd-explore`.
+- Codebase exploration — use `/bm:explore` or `/bm:scan`.
 
 The distinguishing feature is **agreement scoring across identical prompts**, not coverage breadth.
 

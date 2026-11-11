@@ -15,7 +15,7 @@ Researches a topic by fanning out to N parallel researcher subagents (default 5,
 
 Trigger phrases include "deep research on X", "research X with multiple angles", "fan-out research X", "multi-agent research on X", "do a thorough investigation of X".
 
-Do **not** trigger for single-source lookups, factual questions answerable from the user's own files, or codebase exploration — those are different skills (use `research` for single-agent web research, or `gsd-explore` for ideation).
+Do **not** trigger for single-source lookups, factual questions answerable from the user's own files, or codebase exploration — those are different skills (use `research` for single-agent web research, or `/bm:explore` for ideation).
 
 ## Arguments
 

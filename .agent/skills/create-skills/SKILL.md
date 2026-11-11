@@ -7,7 +7,7 @@ description: "Use when the user wants to scaffold a new skill folder from the te
 
 ## Overview
 
-Scaffolds a new skill under `.agents/skills/<slug>/` by copying `.agents/skills/template/`. Infers which optional subfolders (`scripts/`, `references/`, `assets/`) the skill needs from its description; the script language is confirmed with the user if scripts are included.
+Scaffolds a new skill under `.agent/skills/<slug>/` by copying `.agent/skills/template/`. Infers which optional subfolders (`scripts/`, `references/`, `assets/`) the skill needs from its description; the script language is confirmed with the user if scripts are included.
 
 ## When to use
 
@@ -23,7 +23,7 @@ Do **not** trigger for editing an existing skill, running a skill, or listing sk
 
 - If a slug was provided in the prompt: slugify it — lowercase, replace spaces and `_` with `-`, strip punctuation other than `-`, collapse repeated `-`.
 - If absent: ask the user via `ask_question` for the skill name, then slugify their answer.
-- Run `test -d .agents/skills/<slug>/`. **If the directory exists, stop and report the conflict.** Do not overwrite; do not add a numeric suffix.
+- Run `test -d .agent/skills/<slug>/`. **If the directory exists, stop and report the conflict.** Do not overwrite; do not add a numeric suffix.
 - Reject reserved name `template`. **Stop.**
 
 ## Step 2 — Gather metadata
@@ -59,23 +59,23 @@ Ask via `ask_question`:
 
 Run these in order:
 
-1. `mkdir -p .agents/skills/<slug>/`
-2. Read `.agents/skills/template/SKILL.md`, then write to `.agents/skills/<slug>/SKILL.md` with substitutions:
+1. `mkdir -p .agent/skills/<slug>/`
+2. Read `.agent/skills/template/SKILL.md`, then write to `.agent/skills/<slug>/SKILL.md` with substitutions:
    - `name: template` → `name: <slug>`
    - `description: "Folder template…"` → `description: "<user-provided description>"`
    - If args used: replace the `argument-hint` placeholder. If not: delete the `argument-hint` line.
    - `# {Skill Display Name}` → `# <user-provided display name>`
 3. For each chosen subfolder, copy the template's contents:
-   - **scripts/** → `cp -r .agents/skills/template/scripts .agents/skills/<slug>/scripts`, then rename `example.py` to `<slug>.<ext>`.
-   - **references/** → `cp -r .agents/skills/template/references .agents/skills/<slug>/references`.
-   - **assets/** → `cp -r .agents/skills/template/assets .agents/skills/<slug>/assets`.
+   - **scripts/** → `cp -r .agent/skills/template/scripts .agent/skills/<slug>/scripts`, then rename `example.py` to `<slug>.<ext>`.
+   - **references/** → `cp -r .agent/skills/template/references .agent/skills/<slug>/references`.
+   - **assets/** → `cp -r .agent/skills/template/assets .agent/skills/<slug>/assets`.
 4. Strip cheatsheet lines in the new `SKILL.md` for each subfolder NOT chosen.
 
 ## Step 6 — Offer to symlink globally
 
 Ask via `ask_question`:
 
-- **Symlink to `~/.gemini/config/skills/<slug>/`** *(Recommended for skills used across projects)* — `ln -s "$(realpath .agents/skills/<slug>)" ~/.gemini/config/skills/<slug>`.
+- **Symlink to `~/.gemini/config/skills/<slug>/`** *(Recommended for skills used across projects)* — `ln -s "$(realpath .agent/skills/<slug>)" ~/.gemini/config/skills/<slug>`.
 - **No, project-level only** — skill loads only when this repo is cwd.
 
 If the symlink target already exists, **stop** before running `ln` and report the conflict. Do not pass `-f`.
@@ -91,7 +91,7 @@ Report:
 
 ## Hard rules
 
-- Never overwrite an existing `.agents/skills/<slug>/`. Stop on conflict.
+- Never overwrite an existing `.agent/skills/<slug>/`. Stop on conflict.
 - Never overwrite an existing symlink target. Stop on conflict; never pass `ln -f`.
 - Never modify files outside the new skill folder (and the optional symlink).
 - Never delete files. Never run `git add`, `git commit`, or `git push`.

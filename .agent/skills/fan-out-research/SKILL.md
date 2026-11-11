@@ -96,7 +96,7 @@ If the user picks **Cancel**, stop here and report what was synthesized in-chat.
 If the user picks **Generate PDF**, after writing the consolidated markdown, run the PDF generation script:
 
 ```
-python3 .agents/skills/fan-out-research/scripts/fan-out-research.py \
+python3 .agent/skills/fan-out-research/scripts/fan-out-research.py \
   --markdown ./output/<slug>/report.md \
   --output ./output/<slug>/report.pdf \
   --title "<topic>" \

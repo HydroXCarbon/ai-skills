@@ -21,9 +21,8 @@ branch has been visited and nothing is left silently assumed.
 Trigger phrases include "grill me", "stress-test this plan", "poke holes in
 this", "interview me about this idea", "challenge my thinking".
 
-Do **not** trigger for plain brainstorming of a new feature (use
-`superpowers:brainstorming`) or for one-off factual questions — those are
-different skills.
+Do **not** trigger for plain brainstorming of a new feature or for one-off
+factual questions — those are different tasks.
 
 ## Arguments
 

@@ -94,7 +94,7 @@ If the user picks **Cancel**, stop here and report what was synthesized in-chat.
 If the user picks **Generate PDF**, after writing the consolidated markdown, run the PDF generation script:
 
 ```
-python3 .agents/skills/stochastic-consensus-research/scripts/stochastic-consensus-research.py \
+python3 .agent/skills/stochastic-consensus-research/scripts/stochastic-consensus-research.py \
   --markdown ./output/<slug>/report.md \
   --output ./output/<slug>/report.pdf \
   --title "<topic>" \
