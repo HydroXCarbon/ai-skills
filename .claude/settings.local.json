@@ -72,7 +72,14 @@
       "Bash(nc *)",
       "Bash(ssh*)",
       "Bash(scp*)",
-      "Bash(cat ~/.ssh*)",
+      "Bash(* ~/.ssh*)",
+      "Bash(* ~/.aws*)",
+      "Bash(* ~/.gnupg*)",
+      "Bash(* ~/.config/gh*)",
+      "Bash(* ~/.kube*)",
+      "Bash(* ~/.npmrc*)",
+      "Bash(* ~/.netrc*)",
+      "Bash(* ~/.docker/config.json*)",
       "Bash(cat *confidential*)"
     ]
   }
