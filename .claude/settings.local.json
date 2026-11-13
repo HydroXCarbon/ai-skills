@@ -30,11 +30,24 @@
       "Bash(git push*)",
       "Bash(npm publish*)",
       "Bash(npm install*)",
-      "Bash(docker*)"
-    ],
-    "deny": [
+      "Bash(docker*)",
+      "Bash(curl*)",
+      "Bash(wget*)",
       "Read(**/.env)",
       "Read(**/.env.*)",
+      "Read(**/*.env)",
+      "Read(**/.envrc)",
+      "Read(**/*.yaml)",
+      "Read(**/*.yml)",
+      "Read(**/*.tfvars)",
+      "Bash(cat *.env*)",
+      "Bash(cat *.yaml*)",
+      "Bash(cat *.yml*)",
+      "Bash(head *.env*)",
+      "Bash(tail *.env*)",
+      "Bash(grep *.env*)"
+    ],
+    "deny": [
       "Read(**/secrets/**)",
       "Read(**/confidential/**)",
       "Read(~/.ssh/**)",
@@ -55,13 +68,11 @@
       "Bash(git clean*)",
       "Bash(chmod 777*)",
       "Bash(docker rm *)",
-      "Bash(curl*)",
       "Bash(wget*)",
       "Bash(nc *)",
       "Bash(ssh*)",
       "Bash(scp*)",
       "Bash(cat ~/.ssh*)",
-      "Bash(cat *.env*)",
       "Bash(cat *confidential*)"
     ]
   }
