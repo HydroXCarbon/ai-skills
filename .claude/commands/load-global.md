@@ -1,5 +1,5 @@
 ---
-description: Overwrite global Claude config (~/.claude) with this repo's skills, agents (01 + 04 only), and the plugins/MCP listed in INTEGRATIONS.md
+description: Overwrite global Claude config (~/.claude) with this repo's skills, agents (01 + 04 only), settings.local.json, and any missing plugins/MCP listed in INTEGRATIONS.md
 allowed-tools: Bash, Read, Glob
 argument-hint: "[--dry-run]"
 ---
@@ -34,12 +34,34 @@ ln -sfn "<repo>/.claude/agents/<category>/<file>.md" ~/.claude/agents/<file>.md
 
 Do not link any other category, and never link `template.md`.
 
-## 3. Plugins and MCP — from `.claude/INTEGRATIONS.md`
+## 3. Settings — overwrite
+
+Copy (not symlink, so approvals Claude Code writes later don't edit the repo):
+
+```bash
+cp -f "<repo>/.claude/settings.local.json" ~/.claude/settings.local.json
+```
+
+Overwrite without prompting. Skip with a note if the repo file is missing.
+
+## 4. Plugins and MCP — only what is missing
 
 Read the "Install commands" and "MCP servers" sections of
-`<repo>/.claude/INTEGRATIONS.md` and treat them as the source of truth. For
-each plugin, add its marketplace first, then install it. Re-install even if
-already installed, so the latest version is pulled. Currently:
+`<repo>/.claude/INTEGRATIONS.md` and treat them as the source of truth.
+Installing is slow, so check first and **skip anything already present**:
+
+```bash
+claude plugin list      # installed plugins (match on name@marketplace)
+claude plugin marketplace list
+claude mcp list         # configured MCP servers
+```
+
+- Plugin already listed → skip it (and skip its marketplace add). Do not
+  reinstall or update.
+- Plugin missing → add its marketplace if not listed, then install it.
+- MCP server already listed → skip; otherwise add it.
+
+Run the check once up front, not per item. Currently expected:
 
 - `skill-creator`, `frontend-design`, `code-simplifier` (claude-plugins-official)
 - `bm` (buildomator)
@@ -51,8 +73,8 @@ Use the `claude plugin ...` / `claude mcp ...` CLI equivalents of the slash
 commands. If a command fails (e.g. SSH "Host key verification failed" on a
 third-party marketplace), report it and continue with the rest.
 
-## 4. Report
+## 5. Report
 
 Finish with a short summary: skills linked, agents linked (count per
-category), plugins installed vs. failed, then tell the user to run
+category), settings copied, plugins installed / skipped (already present) / failed, then tell the user to run
 `/reload-plugins` or restart Claude Code. Do not edit any file in the repo.
