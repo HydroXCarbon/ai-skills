@@ -2,7 +2,7 @@
 name: commit-message
 description: "Use when the user wants to draft or generate a commit message for staged changes, commit staged changes, or commit and push staged changes."
 argument-hint: "[type-hint] (e.g. feat, fix, docs — optional bias toward a Conventional Commits type)"
-allowed-tools: "Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git commit:*), Bash(git push:*), AskUserQuestion"
+allowed-tools: "Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), AskUserQuestion"
 ---
 
 # Commit Message
@@ -33,7 +33,12 @@ Run these in parallel:
 ## Step 2 — Decide source
 
 - **Staged diff non-empty** → proceed to Step 3.
-- **Staged empty, unstaged non-empty** → tell the user nothing is staged and suggest `git add <files>`. **Stop.** Do not pass `-a`.
+- **Staged empty, changes exist (unstaged or untracked)** → tell the user nothing is staged, then ask via `AskUserQuestion`:
+  - **Stage everything (`git add .`)** — run `git add .`
+  - **Stage specific files** — list the changed files from `git status`, ask which to stage (multi-select), run `git add -- <files>`
+  - **No — stop** — do nothing and **stop**
+
+  After staging, re-run `git diff --cached` and proceed to Step 3. Never pass `-a` to `git commit`.
 - **Both empty** → tell the user there is nothing to commit. **Stop.**
 
 ## Step 3 — Pick type + emoji
@@ -111,7 +116,7 @@ Ask via `AskUserQuestion` with these options:
 ## Hard rules
 
 - Never use `--amend`, `--no-verify`, `--no-gpg-sign`, or `-a` on `git commit`.
-- Never run `git add`. Only commit what is already staged.
+- Run `git add` only when the user chose to stage in Step 2. Never stage on your own, and only commit what is staged.
 - If a pre-commit hook fails: report the failure verbatim and stop. Do not retry.
 - `git push` only when the user explicitly chose "Commit and push". Never push otherwise.
 - Maximum one redraft per invocation (Edit and retry may only be chosen once).
