@@ -39,7 +39,7 @@ Do not link any other category, and never link `template.md`.
 Copy (not symlink, so approvals Claude Code writes later don't edit the repo):
 
 ```bash
-cp -f "<repo>/.claude/settings.local.json" ~/.claude/settings.local.json
+cp -f "<repo>/.claude/settings.local.json" ~/.claude/settings.json
 ```
 
 Overwrite without prompting. Skip with a note if the repo file is missing.
