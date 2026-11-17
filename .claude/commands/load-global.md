@@ -1,5 +1,5 @@
 ---
-description: Overwrite global Claude config (~/.claude) with this repo's skills, agents (01 + 04 only), settings.local.json, and any missing plugins/MCP listed in INTEGRATIONS.md
+description: Overwrite global Claude config (~/.claude) with this repo's skills, agents (01 + 04 only), settings.local.json (merged, keeps env/API key), and any missing plugins/MCP listed in INTEGRATIONS.md
 allowed-tools: Bash, Read, Glob
 argument-hint: "[--dry-run]"
 ---
@@ -34,15 +34,27 @@ ln -sfn "<repo>/.claude/agents/<category>/<file>.md" ~/.claude/agents/<file>.md
 
 Do not link any other category, and never link `template.md`.
 
-## 3. Settings — overwrite
+## 3. Settings — merge, never hard copy
 
-Copy (not symlink, so approvals Claude Code writes later don't edit the repo):
+Do NOT `cp` over `~/.claude/settings.json`: it holds machine-local keys that
+are not in the repo (`env` with `ANTHROPIC_API_KEY` / `ANTHROPIC_BASE_URL`,
+`model`, etc.) and a copy would delete them. Instead deep-merge the repo file
+on top of the existing one, so repo keys win and every other key is kept
+(not a symlink either, so approvals Claude Code writes later don't edit the
+repo):
 
 ```bash
-cp -f "<repo>/.claude/settings.local.json" ~/.claude/settings.json
+[ -f ~/.claude/settings.json ] || echo '{}' > ~/.claude/settings.json
+cp ~/.claude/settings.json ~/.claude/settings.json.bak
+jq -s '.[0] * .[1]' ~/.claude/settings.json "<repo>/.claude/settings.local.json" \
+  > ~/.claude/settings.json.tmp && mv ~/.claude/settings.json.tmp ~/.claude/settings.json
 ```
 
-Overwrite without prompting. Skip with a note if the repo file is missing.
+Notes:
+- Objects merge recursively; arrays (e.g. `permissions.allow`) are replaced
+  by the repo's version.
+- Never print `env` values in the report.
+- Skip with a note if the repo file is missing or `jq` is unavailable.
 
 ## 4. Plugins and MCP — only what is missing
 
@@ -76,5 +88,5 @@ third-party marketplace), report it and continue with the rest.
 ## 5. Report
 
 Finish with a short summary: skills linked, agents linked (count per
-category), settings copied, plugins installed / skipped (already present) / failed, then tell the user to run
+category), settings merged, plugins installed / skipped (already present) / failed, then tell the user to run
 `/reload-plugins` or restart Claude Code. Do not edit any file in the repo.
