@@ -72,6 +72,9 @@ claude mcp list         # configured MCP servers
   reinstall or update.
 - Plugin missing → add its marketplace if not listed, then install it.
 - MCP server already listed → skip; otherwise add it.
+- Plugin listed but `Status: ✘ disabled` → enable it with
+  `claude plugin enable <name>@<marketplace>`. Applies to every plugin in the
+  expected list below, including ones that were already installed.
 
 Run the check once up front, not per item. Currently expected:
 
@@ -87,5 +90,5 @@ third-party marketplace), report it and continue with the rest.
 ## 5. Report
 
 Finish with a short summary: skills linked, agents linked (count per
-category), settings merged, plugins installed / skipped (already present) / failed, then tell the user to run
+category), settings merged, plugins installed / enabled / skipped (already present and enabled) / failed, then tell the user to run
 `/reload-plugins` or restart Claude Code. Do not edit any file in the repo.
