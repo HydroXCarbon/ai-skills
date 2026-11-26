@@ -58,7 +58,7 @@ Notes:
 
 ## 4. Plugins and MCP — only what is missing
 
-Read the "Install commands" and "MCP servers" sections of
+Read the "Install commands" section of
 `<repo>/.claude/INTEGRATIONS.md` and treat them as the source of truth.
 Installing is slow, so check first and **skip anything already present**:
 
@@ -75,11 +75,10 @@ claude mcp list         # configured MCP servers
 
 Run the check once up front, not per item. Currently expected:
 
-- `skill-creator`, `frontend-design`, `code-simplifier` (claude-plugins-official)
+- `skill-creator`, `frontend-design`, `code-simplifier`, `context7` (claude-plugins-official)
 - `bm` (buildomator)
 - `context-mode`
 - `claude-mem`
-- MCP `context7` (user scope)
 
 Use the `claude plugin ...` / `claude mcp ...` CLI equivalents of the slash
 commands. If a command fails (e.g. SSH "Host key verification failed" on a
