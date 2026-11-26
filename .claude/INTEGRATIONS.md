@@ -28,6 +28,33 @@ claude plugin install context7@claude-plugins-official
 /plugin install claude-mem
 ```
 
+## Graphify (local CLI, not a plugin)
+
+Builds a knowledge graph of a repo on disk (`graphify-out/graph.json`, `graph.html`, `GRAPH_REPORT.md`). No server or sign-in. `/bm:graphify build` shells out to this CLI (`graphify . --update`), so install it first. Requires Python 3.10+.
+
+```bash
+# Install the CLI (PyPI package name has two y's)
+uv tool install graphifyy      # or: pipx install graphifyy
+
+# uv installs to ~/.local/bin; make sure it is on PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# Optional: copy the skill into your assistant's global config dir
+graphify install --platform claude
+
+# Build/refresh the graph from code files (AST only, no LLM needed)
+graphify update .
+
+# Full extraction including docs/markdown (needs an LLM API key)
+graphify extract .
+```
+
+`graphify claude install` is separate: it edits `CLAUDE.md` and adds a PreToolUse hook. Skip it unless you want that.
+
+`/bm:graphify build` runs `graphify . --update`, but that form is not listed in the CLI help, so it may fail. If it does, use `graphify update .` directly. To use bm anyway, the project also needs `.planning/config.json` with `{"graphify": {"enabled": true}}`.
+
+> Do not install the `Graphify-Labs/graphify-claude-plugin` marketplace plugin for this. It is a client for a hosted, authenticated service that indexes repos on their server, and it does not provide the local CLI.
+
 ## What each plugin does
 
 | Plugin | Purpose |
