@@ -9,7 +9,7 @@ allowed-tools: "Read, Write, Bash(git status:*), Bash(git rev-parse:*), Bash(git
 
 ## Overview
 
-Drafts a planning spec for a feature brief on a new `claude/feature/<slug>` branch. Reads the bundled `assets/template.md` (relative to this SKILL.md) to produce a structured `_specs/<slug>.md` document. Planning only — no code, no implementation details, no file paths or library choices.
+Drafts a planning spec for a feature brief on a new `claude/feature/<slug>` branch. Reads the bundled `assets/template.md` (relative to this SKILL.md) to produce a structured `spec/<slug>.md` document. Planning only — no code, no implementation details, no file paths or library choices.
 
 ## When to use
 
@@ -40,7 +40,7 @@ If `git status --porcelain` produces any output: **stop and report** the dirty p
 
 Run in parallel:
 
-- `test -f _specs/<feature-slug>.md` → if it exists, **stop and report** the existing path. Do not overwrite.
+- `test -f spec/<feature-slug>.md` → if it exists, **stop and report** the existing path. Do not overwrite.
 - `git branch --list claude/feature/<feature-slug>` → if non-empty, **stop and report** the existing branch. Do not force-create.
 
 ## Step 4 — Create and switch branch
@@ -51,18 +51,18 @@ If checkout fails for any reason, report the error verbatim and stop. Do not ret
 
 ## Step 5 — Draft the spec
 
-Create a markdown spec document and save it to `_specs/<feature-slug>.md`. Use the **exact structure** defined in this skill's bundled `assets/template.md` — that file owns the section list, per-section guidance, and the authoring rules.
+Create a markdown spec document and save it to `spec/<feature-slug>.md`. Use the **exact structure** defined in this skill's bundled `assets/template.md` — that file owns the section list, per-section guidance, and the authoring rules.
 
 - Read the bundled `assets/template.md` from the skill's base directory (not from the target project — the project need not have it). Follow its structure and its top-comment authoring rules verbatim.
 - Substitute `<feature-name>` in the H1 with a human-readable feature name (title-cased slug by default; override if the brief implies a clearer name).
 - Draft each section from the brief, obeying the per-section guidance written in the template's HTML comments.
-- Write the result to `_specs/<feature-slug>.md` via `Write`. Do not add technical implementation details such as code examples.
+- Write the result to `spec/<feature-slug>.md` via `Write`. Do not add technical implementation details such as code examples.
 
 ## Step 6 — Report
 
 Print:
 
-- New spec path: `_specs/<feature-slug>.md`
+- New spec path: `spec/<feature-slug>.md`
 - New branch: `claude/feature/<feature-slug>`
 - Source branch (from Step 2)
 - Count of bullets in **Open questions**
@@ -78,9 +78,9 @@ If the brief is too vague to derive a meaningful slug or summary, ask via `AskUs
 
 ## Hard rules
 
-- Never overwrite an existing `_specs/<slug>.md`. Stop on conflict.
+- Never overwrite an existing `spec/<slug>.md`. Stop on conflict.
 - Never overwrite or force-create an existing branch. Never use `git checkout -B`, `--force`, or `-f`.
 - Never include code blocks, function signatures, file paths to be created/edited, library/framework choices, or other implementation details in the drafted spec. Planning only.
-- Never run `git add`, `git commit`, `git push`, or modify any file outside `_specs/<feature-slug>.md`.
+- Never run `git add`, `git commit`, `git push`, or modify any file outside `spec/<feature-slug>.md`.
 - Reject `template` as a slug — that name belongs to the source template.
 - Stop immediately if the working tree is dirty. Do not stash, do not `--force`, do not carry changes onto the new branch silently.

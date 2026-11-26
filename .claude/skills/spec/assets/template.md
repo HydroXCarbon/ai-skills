@@ -5,7 +5,7 @@
     library/framework picks, or other implementation details.
   - Capture intent, behavior, and unknowns. Implementation lives in code.
   - Replace `<feature-name>` in the H1 with a human-readable name.
-  - File name: `_specs/<feature-slug>.md` where slug is lowercase-kebab.
+  - File name: `spec/<feature-slug>.md` where slug is lowercase-kebab.
   - Delete sections that are genuinely N/A; do not leave empty placeholders.
   - When the brief is sparse, prefer fewer concrete items + more
     items in Open questions over invented detail.
