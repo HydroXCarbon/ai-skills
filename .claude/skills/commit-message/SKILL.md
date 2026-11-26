@@ -1,6 +1,6 @@
 ---
 name: commit-message
-description: "Use when the user wants to draft or generate a commit message for staged changes, commit staged changes, or commit and push staged changes."
+description: "Use when the user says git add, commit, or commit and push (or asks for a commit message) — stages files if none are staged (all or specific), drafts a commit message, then commits or commits and pushes."
 argument-hint: "[type-hint] (e.g. feat, fix, docs — optional bias toward a Conventional Commits type)"
 allowed-tools: "Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), AskUserQuestion"
 ---
@@ -13,15 +13,28 @@ Inspects the currently staged changes and drafts a [Conventional Commits](https:
 
 ## When to use
 
-Trigger phrases include "commit message", "draft a commit", "generate commit message", "commit my changes", "commit and push", "write a commit for staged changes".
+Trigger whenever the user says "git add", "commit", or "commit and push" — including "commit message", "draft a commit", "generate commit message", "commit my changes", "add and commit", "write a commit for staged changes". If nothing is staged, Step 1 offers to stage files first.
 
-Do **not** trigger for `git add`, branch management, rebasing, or any workflow that isn't about authoring a single commit message — those are separate tasks.
+Do **not** trigger for branch management, rebasing, or any workflow that isn't about staging and authoring a single commit.
 
 ## Arguments
 
 - **type-hint** *(optional)* — a Conventional Commits type (e.g. `feat`, `fix`, `docs`) to bias the selection. Ignored when the diff clearly belongs to a different type.
 
-## Step 1 — Inspect state
+## Step 1 — Ensure files are staged
+
+Run `git diff --cached --name-only` and `git status --short`.
+
+- **Something is staged** → go to Step 2.
+- **Nothing staged, changes exist (unstaged or untracked)** → tell the user nothing is staged, then ask via `AskUserQuestion`:
+  - **Add all (`git add .`)** — run `git add .`
+  - **Add specific files** — list the changed files from `git status`, ask which to stage (multi-select), run `git add -- <files>`
+  - **No — stop** — do nothing and **stop**
+
+  Never pass `-a` to `git commit`.
+- **Nothing staged and no changes** → tell the user there is nothing to commit. **Stop.**
+
+## Step 2 — Inspect state
 
 Run these in parallel:
 
@@ -29,17 +42,6 @@ Run these in parallel:
 - `git diff --cached`
 - `git diff` (unstaged — only to detect divergence)
 - `git log -n 5 --oneline` (to mirror this repo's existing commit style)
-
-## Step 2 — Decide source
-
-- **Staged diff non-empty** → proceed to Step 3.
-- **Staged empty, changes exist (unstaged or untracked)** → tell the user nothing is staged, then ask via `AskUserQuestion`:
-  - **Stage everything (`git add .`)** — run `git add .`
-  - **Stage specific files** — list the changed files from `git status`, ask which to stage (multi-select), run `git add -- <files>`
-  - **No — stop** — do nothing and **stop**
-
-  After staging, re-run `git diff --cached` and proceed to Step 3. Never pass `-a` to `git commit`.
-- **Both empty** → tell the user there is nothing to commit. **Stop.**
 
 ## Step 3 — Pick type + emoji
 
@@ -89,7 +91,7 @@ Output the full message inside a fenced code block so the user can copy it verba
 
 Ask via `AskUserQuestion` with these options:
 
-- **Commit staged changes with this message** — runs `git commit` with the drafted message
+- **Commit staged changes** — runs `git commit` with the drafted message
 - **Commit and push** — commits, then immediately runs `git push`
 - **Skip — I'll commit manually** — does nothing; confirms message was not committed
 - **Edit and retry** — asks what to change, redrafts once, returns to Step 5
@@ -116,7 +118,7 @@ Ask via `AskUserQuestion` with these options:
 ## Hard rules
 
 - Never use `--amend`, `--no-verify`, `--no-gpg-sign`, or `-a` on `git commit`.
-- Run `git add` only when the user chose to stage in Step 2. Never stage on your own, and only commit what is staged.
+- Run `git add` only when the user chose to stage in Step 1. Never stage on your own, and only commit what is staged.
 - If a pre-commit hook fails: report the failure verbatim and stop. Do not retry.
 - `git push` only when the user explicitly chose "Commit and push". Never push otherwise.
 - Maximum one redraft per invocation (Edit and retry may only be chosen once).
